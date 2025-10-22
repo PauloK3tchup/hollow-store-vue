@@ -1,59 +1,150 @@
-<script setup></script>
+<script>
+import HeaderComp from './components/HeaderComp.vue'
+import CarouselComp from './components/CarouselComp.vue'
+import ProdutoComp from './components/ProdutoComp.vue'
+import axios from 'axios'
+
+export default {
+  data() {
+    return {
+      produtos: [],
+      destaques: [],
+      categorias: [],
+      tipos: [],
+      filtrandoTipo: null,
+      filtrandoCategoria: false,
+      pagina: 1,
+    }
+  },
+  components: {
+    HeaderComp,
+    CarouselComp,
+    ProdutoComp,
+  },
+  methods: {
+    async buscarCategoria() {
+      try {
+        const resposta = await axios.get('http://127.0.0.1:8000/api/categorias/')
+        this.categorias = resposta.data.results
+        console.log(this.categorias)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async buscarTipos() {
+      try {
+        const resposta = await axios.get('http://127.0.0.1:8000/api/tipos/')
+        this.tipos = resposta.data.results
+        console.log(this.tipos)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async buscarDestaques() {
+      try {
+        const resposta = await axios.get('http://127.0.0.1:8000/api/produtos/?page=1')
+        this.destaques = resposta.data.results.slice(0, 5)
+        console.log(this.destaques)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async buscarProdutos() {
+      try {
+        this.filtrandoTipo = null
+        const resposta = await axios.get('http://127.0.0.1:8000/api/produtos/?page=' + this.pagina)
+        this.produtos = resposta.data.results
+        console.log(this.produtos)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
+    async filtrarTipo(tipoid) {
+      try {
+        const resposta = await axios.get('http://127.0.0.1:8000/api/produtos/?page=' + this.pagina)
+        this.produtos = resposta.data.results.filter((produto) => produto.tipo.nome === tipoid)
+        console.log(this.produtos)
+        this.filtrandoTipo = tipoid
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    selecionarPagina(pagina) {
+      this.pagina = pagina
+      if (this.filtrandoTipo) {
+        this.filtrarTipo(this.filtrandoTipo)
+      } else {
+        this.buscarProdutos()
+      }
+    },
+  },
+  mounted() {
+    this.buscarProdutos()
+    this.buscarDestaques()
+    this.buscarCategoria()
+    this.buscarTipos()
+  },
+}
+</script>
 
 <template>
   <body>
-    <header>
-      <div>
-        <h1>Teste</h1>
-      </div>
-    </header>
+    <HeaderComp />
+    <div class="tipos">
+      <button v-for="tipo in tipos" :key="tipo.id" @click="filtrarTipo(tipo.nome)">
+        {{ tipo.nome }}
+      </button>
+      <button @click="buscarProdutos">Nenhum</button>
+    </div>
+    <!-- <div class="categorias">
+      <button v-for="categoria in categorias" :key="categoria.id">{{ categoria.nome }}</button>
+    </div> -->
     <main>
-      <div class="carousel">
-        <div id="demo" class="carousel slide" data-ride="carousel">
-          <!-- Indicadores -->
-          <ul class="carousel-indicators">
-            <li data-target="#demo" data-slide-to="0" class="active"></li>
-            <li data-target="#demo" data-slide-to="1"></li>
-            <li data-target="#demo" data-slide-to="2"></li>
-          </ul>
-
-          <!-- Slides -->
-          <div class="carousel-inner">
-            <div class="carousel-item active">
-              <img src="./assets/img/palco-trobbio.jpg" alt="Batatas" width="1100" height="500" />
-              <div class="carousel-caption">
-                <h3>Ingressos para O Palco da Cidadela</h3>
-                <p>Teatro da Lamentação</p>
-              </div>
-            </div>
-            <div class="carousel-item">
-              <img src="./assets/img/Venom.jpg" alt="Venom" width="1100" height="500" />
-              <div class="carousel-caption">
-                <h3>Não Venom</h3>
-                <p>Não coma as batatas!!!!</p>
-              </div>
-            </div>
-            <div class="carousel-item">
-              <img
-                src="./assets/img/Venom batata.png"
-                alt="Venom come as batatas"
-                width="1100"
-                height="500"
-              />
-              <div class="carousel-caption">
-                <h3>Nossa</h3>
-                <p>Mas que desgraçado</p>
-              </div>
-            </div>
+      <div class="slides-destaques">
+        <CarouselComp />
+        <div class="destaques">
+          <h1>Destaques da semana</h1>
+          <div class="lista-destaques">
+            <ProdutoComp
+              v-for="produto in destaques"
+              :id="produto.id"
+              :key="produto.id"
+              :nome="produto.nome"
+              :preco="produto.preco"
+              :imagemURL="produto.imagem"
+              :tipo="produto.tipo.nome"
+            />
           </div>
-
-          <!-- Avançar e retornar slide -->
-          <a class="carousel-control-prev" href="#demo" data-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-          </a>
-          <a class="carousel-control-next" href="#demo" data-slide="next">
-            <span class="carousel-control-next-icon"></span>
-          </a>
+        </div>
+        <div class="outros-produtos">
+          <h1>Outros Produtos</h1>
+          <div class="produtos">
+            <ProdutoComp
+              v-for="produto in produtos"
+              :id="produto.id"
+              :key="produto.id"
+              :nome="produto.nome"
+              :preco="produto.preco"
+              :imagemURL="produto.imagem"
+              :tipo="produto.tipo.nome"
+            />
+          </div>
+        </div>
+        <div class="container">
+          <div class="paginacao">
+            <button @click="selecionarPagina(pagina - 1)">
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <p @click="selecionarPagina(pagina)" class="pag-click pag-atual">{{ pagina }}</p>
+            <p @click="selecionarPagina(pagina + 1)" class="pag-click">{{ pagina + 1 }}</p>
+            <p @click="selecionarPagina(pagina + 2)" class="pag-click">{{ pagina + 2 }}</p>
+            <p @click="selecionarPagina(pagina + 3)" class="pag-click">{{ pagina + 3 }}</p>
+            <p @click="selecionarPagina(pagina + 4)" class="pag-click">{{ pagina + 4 }}</p>
+            <button @click="selecionarPagina(pagina + 1)">
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
         </div>
       </div>
     </main>
@@ -61,12 +152,13 @@
   </body>
 </template>
 
-<style scoped>
+<style>
 @font-face {
   font-family: HollowFonte;
   src: url(assets/Trajan\ Pro\ Regular.ttf);
 }
 @import url('https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400..700;1,400..700&display=swap');
+
 body {
   font-family: 'Baskervville', serif;
   background-color: #252525;
@@ -75,18 +167,68 @@ body {
   height: 100vh;
 }
 
-header {
+div.lista-destaques {
+  width: 100%;
+  padding: 0 15%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+div.outros-produtos {
+  width: 100%;
+  padding: 2% 15%;
+  text-align: center;
+  text-align: center;
+  background-color: #252525;
+}
+
+div.produtos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+div.slides-destaques {
+  width: 100%;
+  height: auto;
   background-color: #121212;
-  padding: 20px;
+}
+
+div.destaques {
+  padding: 60px;
   text-align: center;
 }
 
-div.carousel-caption {
-  color: #ffffff;
+button {
+  background-color: #121212;
+  border: 1px solid white;
+  border-radius: 10px;
+  color: white;
+  padding: 10px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-family: 'HollowFonte';
+  transition: 0.15s;
+}
+
+button:hover {
   text-shadow:
     0 0 10px #fff,
     0 0 20px #fff;
-  font-family: HollowFonte;
+  box-shadow:
+    0 0 10px #fff,
+    inset 0 0 10px #fff;
+}
+
+div.pesquisa input {
+  width: 400px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ffffff;
+  font-family: 'Baskervville', serif;
+  color: #ffffff;
+  background-color: #121212;
 }
 
 h1 {
@@ -96,9 +238,34 @@ h1 {
     0 0 20px #fff;
   font-family: HollowFonte;
 }
-.carousel-inner img {
-  width: 100%;
-  height: 70%;
-  background-size: contain;
+
+.pag-click:hover {
+  text-shadow:
+    0 0 10px #fff,
+    0 0 20px #fff;
+  cursor: pointer;
+}
+
+.pag-atual {
+  font-weight: bolder;
+  text-decoration: underline;
+}
+
+div.paginacao {
+  text-align: center;
+  margin: 20px 0 60px 0;
+}
+div.paginacao p {
+  display: inline-block;
+  color: white;
+  font-family: 'HollowFonte';
+  font-size: 20px;
+  margin: 0 15px 0 15px;
+  text-align: center;
+}
+div.container {
+  display: flex;
+  justify-content: right;
+  padding: 0 8%;
 }
 </style>
