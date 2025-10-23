@@ -79,6 +79,7 @@ div.carousel-caption p {
   right: 0;
   height: 80%;
   background: linear-gradient(to top, #121212, transparent);
+  /* radial-gradient(circle, rgba(63, 94, 251, 0) 0%, rgba(18, 18, 18, 1) 100%); */
   pointer-events: none;
 }
 </style>

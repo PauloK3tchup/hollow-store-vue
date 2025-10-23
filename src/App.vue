@@ -3,6 +3,8 @@ import HeaderComp from './components/HeaderComp.vue'
 import CarouselComp from './components/CarouselComp.vue'
 import ProdutoComp from './components/ProdutoComp.vue'
 import axios from 'axios'
+import { useTiposStore } from './stores/tipos'
+import { mapActions, mapState } from 'pinia'
 
 export default {
   data() {
@@ -11,8 +13,6 @@ export default {
       destaques: [],
       categorias: [],
       tipos: [],
-      filtrandoTipo: null,
-      filtrandoCategoria: false,
       pagina: 1,
     }
   },
@@ -21,7 +21,28 @@ export default {
     CarouselComp,
     ProdutoComp,
   },
+  computed: {
+    ...mapState(useTiposStore, ['tipoAtual', 'pesquisaAtual', 'categoriaAtual']),
+  },
+  watch: {
+    tipoAtual() {
+      this.pagina = 1
+      this.buscarProdutos()
+    },
+    pesquisaAtual() {
+      this.pagina = 1
+      this.buscarProdutos()
+    },
+    categoriaAtual() {
+      this.pagina = 1
+      this.buscarProdutos()
+    },
+  },
   methods: {
+    ...mapActions(useTiposStore, ['pegaTipo']),
+    clamp(value, min, max) {
+      return Math.max(min, Math.min(value, max))
+    },
     async buscarCategoria() {
       try {
         const resposta = await axios.get('http://127.0.0.1:8000/api/categorias/')
@@ -52,31 +73,23 @@ export default {
     async buscarProdutos() {
       try {
         this.filtrandoTipo = null
-        const resposta = await axios.get('http://127.0.0.1:8000/api/produtos/?page=' + this.pagina)
+        const resposta = await axios.get(
+          'http://127.0.0.1:8000/api/produtos/?page=' +
+            this.pagina +
+            this.tipoAtual +
+            this.categoriaAtual +
+            this.pesquisaAtual,
+        )
         this.produtos = resposta.data.results
         console.log(this.produtos)
       } catch (error) {
         console.log(error)
       }
     },
-
-    async filtrarTipo(tipoid) {
-      try {
-        const resposta = await axios.get('http://127.0.0.1:8000/api/produtos/?page=' + this.pagina)
-        this.produtos = resposta.data.results.filter((produto) => produto.tipo.nome === tipoid)
-        console.log(this.produtos)
-        this.filtrandoTipo = tipoid
-      } catch (error) {
-        console.log(error)
-      }
-    },
     selecionarPagina(pagina) {
       this.pagina = pagina
-      if (this.filtrandoTipo) {
-        this.filtrarTipo(this.filtrandoTipo)
-      } else {
-        this.buscarProdutos()
-      }
+      this.clamp(this.pagina, 1, 9)
+      this.buscarProdutos()
     },
   },
   mounted() {
@@ -90,13 +103,7 @@ export default {
 
 <template>
   <body>
-    <HeaderComp />
-    <div class="tipos">
-      <button v-for="tipo in tipos" :key="tipo.id" @click="filtrarTipo(tipo.nome)">
-        {{ tipo.nome }}
-      </button>
-      <button @click="buscarProdutos">Nenhum</button>
-    </div>
+    <HeaderComp :buscarProdutos="buscarProdutos" :tipos="this.tipos" :categorias="categorias" />
     <!-- <div class="categorias">
       <button v-for="categoria in categorias" :key="categoria.id">{{ categoria.nome }}</button>
     </div> -->
