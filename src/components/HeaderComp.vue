@@ -1,6 +1,6 @@
 <script>
-import { useTiposStore } from '../stores/tipos'
-import { mapActions } from 'pinia'
+import { mapActions } from 'pinia';
+import { useTiposStore } from '../stores/tipos';
 
 export default {
   name: 'HeaderComp',
@@ -63,7 +63,7 @@ export default {
   <header :class="{ onScroll: !view.topOfPage }">
     <div class="acima">
       <div class="logo">
-        <img src="../assets/img/hollow-store-logo.png" alt="Logo Hollow Store" />
+        <router-link to='/'><img src="../assets/img/hollow-store-logo.png" alt="Logo Hollow Store" /></router-link>
       </div>
       <div class="pesquisa">
         <input v-model="pesquisaTexto" type="text" placeholder="O que você procura?" />
