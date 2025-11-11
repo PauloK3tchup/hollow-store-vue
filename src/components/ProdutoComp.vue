@@ -1,10 +1,23 @@
 <script>
+import { useTiposStore } from '../stores/tipos'
+import { mapActions, mapState } from 'pinia'
 export default {
   props: ['nome', 'preco', 'imagemURL', 'id', 'tipo'],
+  computed: {
+    ...mapState(useTiposStore, ['produtoAtual']),
+  },
+  methods: {
+    ...mapActions(useTiposStore, ['pegaProduto']),
+    selecionarProduto() {
+      this.pegaProduto(this.id)
+      console.log('Produto selecionado:', this.produtoAtual)
+      this.$router.push('/produto')
+    },
+  },
 }
 </script>
 <template>
-  <div class="produto">
+  <div class="produto" @click="selecionarProduto">
     <div class="foto">
       <img :src="imagemURL" alt="Dashmaster" />
     </div>
