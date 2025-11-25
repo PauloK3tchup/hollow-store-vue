@@ -1,6 +1,6 @@
 <script>
-import { mapActions } from 'pinia';
-import { useTiposStore } from '../stores/tipos';
+import { mapActions } from 'pinia'
+import { useTiposStore } from '../stores/tipos'
 
 export default {
   name: 'HeaderComp',
@@ -40,6 +40,7 @@ export default {
       'tiraCategoria',
     ]),
     pesquisaAqui() {
+      this.$router.push('/pesquisa')
       if (this.pesquisaTexto.trim() !== '') {
         this.pesquisar(this.pesquisaTexto.trim())
       } else {
@@ -63,10 +64,17 @@ export default {
   <header :class="{ onScroll: !view.topOfPage }">
     <div class="acima">
       <div class="logo">
-        <router-link to='/'><img src="../assets/img/hollow-store-logo.png" alt="Logo Hollow Store" /></router-link>
+        <router-link to="/"
+          ><img src="../assets/img/hollow-store-logo.png" alt="Logo Hollow Store"
+        /></router-link>
       </div>
       <div class="pesquisa">
-        <input v-model="pesquisaTexto" type="text" placeholder="O que você procura?" />
+        <input
+          @keypress.enter="pesquisaAqui()"
+          v-model="pesquisaTexto"
+          type="text"
+          placeholder="O que você procura?"
+        />
         <button @click="pesquisaAqui()"><i class="fa-solid fa-magnifying-glass"></i></button>
       </div>
       <div class="botoes">

@@ -35,15 +35,30 @@ export default {
         <div class="product-stats">
           <h2>Atributos</h2>
           <ul>
-            <li>
+            <li v-if="produtoData.efeito != ''">
+              <span class="stat-label">{{ produtoData.efeito }}</span>
+            </li>
+            <li v-if="produtoData.seda != null">
+              <span class="stat-label">Seda</span>
+              <span class="stat-value">{{ produtoData.seda }}</span>
+            </li>
+            <li v-if="produtoData.alma != null">
+              <span class="stat-label">Alma</span>
+              <span class="stat-value">{{ produtoData.alma }}</span>
+            </li>
+            <li v-if="produtoData.dano != null">
               <span class="stat-label">Dano</span>
               <span class="stat-value">{{ produtoData.dano }}</span>
             </li>
-            <li>
+            <li v-if="produtoData.defesa != null">
+              <span class="stat-label">Defesa</span>
+              <span class="stat-value">{{ produtoData.defesa }}</span>
+            </li>
+            <li v-if="produtoData.durabilidade != null">
               <span class="stat-label">Durabilidade</span>
               <span class="stat-value">{{ produtoData.durabilidade }}</span>
             </li>
-            <li>
+            <li v-if="produtoData.tipo.nome == 'Amuleto'">
               <span class="stat-label">Custo de Encaixe</span>
               <span class="stat-value slot-cost">
                 {{ '●'.repeat(produtoData.slot_custo) }}
@@ -78,7 +93,7 @@ const formatPrice = (price) => {
 .page-background {
   background-color: #1a1a1d;
   min-height: 100vh;
-  padding: 40px;
+  padding: 5% 40px 40px 40px;
   display: flex;
   align-items: center;
   justify-content: center;

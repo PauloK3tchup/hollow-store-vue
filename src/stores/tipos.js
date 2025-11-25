@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import http from '../../http'
 
 export const useTiposStore = defineStore('tipos', () => {
   const tipoAtual = ref('')
@@ -13,7 +13,7 @@ export const useTiposStore = defineStore('tipos', () => {
     this.produtoAtual = produto
 
     try {
-      const resposta = await axios.get(`http://127.0.0.1:8000/api/produtos/${this.produtoAtual}/`)
+      const resposta = await http.get(`/produtos/${this.produtoAtual}/`)
       this.produtoData = resposta.data
       console.log(this.produtoData)
     } catch (erro) {

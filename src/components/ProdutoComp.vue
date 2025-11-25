@@ -19,7 +19,7 @@ export default {
 <template>
   <div class="produto" @click="selecionarProduto">
     <div class="foto">
-      <img :src="imagemURL" alt="Dashmaster" />
+      <img :src="imagemURL" :alt="nome" />
     </div>
     <div class="texto">
       <h2>{{ nome }}</h2>
@@ -43,6 +43,7 @@ div.produto {
   text-align: center;
   transition: 0.15s;
   height: 250px;
+  text-overflow: ellipsis;
 }
 
 div.produto:hover {
@@ -59,6 +60,12 @@ div.produto h2 {
   font-family: 'HollowFonte';
   font-size: 18px;
   margin: 10px 0 5px 0;
+  overflow: hidden;
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
 }
 
 div.produto img {

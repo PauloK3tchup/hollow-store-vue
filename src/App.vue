@@ -1,6 +1,7 @@
 <script>
 import HeaderComp from './components/HeaderComp.vue'
 import { RouterView } from 'vue-router'
+import http from '../http'
 
 export default {
   data() {
@@ -15,6 +16,46 @@ export default {
   components: {
     HeaderComp,
     RouterView,
+  },
+  methods: {
+    async buscarProdutos() {
+      try {
+        this.filtrandoTipo = null
+        const resposta = await http.get(
+          '/produtos/?page=' +
+            this.pagina +
+            this.tipoAtual +
+            this.categoriaAtual +
+            this.pesquisaAtual,
+        )
+        this.produtos = resposta.data.results
+        console.log(this.produtos)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async buscarCategoria() {
+      try {
+        const resposta = await http.get('/categorias/')
+        this.categorias = resposta.data.results
+        console.log(this.categorias)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async buscarTipos() {
+      try {
+        const resposta = await http.get('/tipos/')
+        this.tipos = resposta.data.results
+        console.log(this.tipos)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+  },
+  mounted() {
+    this.buscarCategoria()
+    this.buscarTipos()
   },
 }
 </script>
@@ -50,6 +91,9 @@ div.lista-destaques {
   justify-content: center;
 }
 
+.btn-pag {
+  width: 60px;
+}
 div.outros-produtos {
   width: 100%;
   padding: 2% 15%;

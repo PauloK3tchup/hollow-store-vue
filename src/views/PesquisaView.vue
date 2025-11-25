@@ -1,5 +1,4 @@
 <script>
-import CarouselComp from '../components/CarouselComp.vue'
 import ProdutoComp from '../components/ProdutoComp.vue'
 import http from '../../http'
 
@@ -19,7 +18,6 @@ export default {
     }
   },
   components: {
-    CarouselComp,
     ProdutoComp,
   },
   computed: {
@@ -58,15 +56,6 @@ export default {
   },
   methods: {
     ...mapActions(useTiposStore, ['pegaTipo']),
-    async buscarDestaques() {
-      try {
-        const resposta = await http.get('/produtos/?page=1')
-        this.destaques = resposta.data.results.slice(0, 5)
-        console.log(this.destaques)
-      } catch (error) {
-        console.log(error)
-      }
-    },
     async buscarProdutos() {
       try {
         this.filtrandoTipo = null
@@ -93,30 +82,14 @@ export default {
   },
   mounted() {
     this.buscarProdutos()
-    this.buscarDestaques()
   },
 }
 </script>
 <template>
   <main>
     <div class="slides-destaques">
-      <CarouselComp />
-      <div class="destaques">
-        <h1>Destaques da semana</h1>
-        <div class="lista-destaques">
-          <ProdutoComp
-            v-for="produto in destaques"
-            :id="produto.id"
-            :key="produto.id"
-            :nome="produto.nome"
-            :preco="produto.preco"
-            :imagemURL="produto.imagem"
-            :tipo="produto.tipo.nome"
-          />
-        </div>
-      </div>
       <div class="outros-produtos">
-        <h1>Outros Produtos</h1>
+        <h1>Resultados da Pesquisa</h1>
         <div class="produtos">
           <ProdutoComp
             v-for="produto in produtos"
@@ -155,4 +128,8 @@ export default {
     </div>
   </main>
 </template>
-<style></style>
+<style scoped>
+div.slides-destaques {
+  padding: 5% 0 0 0;
+}
+</style>
