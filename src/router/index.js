@@ -18,7 +18,22 @@ const router = createRouter({
       path: '/pesquisa',
       name: 'pesquisa',
       component: () => import('../views/PesquisaView.vue'),
-    }
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue'),
+    },
+    {
+      path: '/carrinho',
+      name: 'carrinho',
+      component: () => import('../views/CarrinhoView.vue'),
+    },
+    {
+      path: '/pedidos',
+      name: 'pedidos',
+      component: () => import('../views/PedidosView.vue'),
+    },
   ],
 })
 

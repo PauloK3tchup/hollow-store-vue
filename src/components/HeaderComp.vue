@@ -78,9 +78,11 @@ export default {
         <button @click="pesquisaAqui()"><i class="fa-solid fa-magnifying-glass"></i></button>
       </div>
       <div class="botoes">
-        <button><i class="fa-solid fa-cart-shopping"></i></button>
+        <button @click="this.$router.push('/carrinho')">
+          <i class="fa-solid fa-cart-shopping"></i>
+        </button>
         <button @click="dropar">Filtrar</button>
-        <button>Entrar</button>
+        <button @click="this.$router.push('/login')">Conta</button>
       </div>
     </div>
     <div v-if="drop" class="abaixo">
