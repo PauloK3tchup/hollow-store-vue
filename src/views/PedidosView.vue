@@ -25,7 +25,7 @@ const carregarPedidos = async () => {
       },
     })
 
-    pedidos.value = response.data.results
+    pedidos.value = response.data.results.filter((pedido) => pedido.status != 'C')
     isLoading.value = false
   } catch (err) {
     isLoading.value = false
@@ -75,7 +75,7 @@ const calcularTotalPedido = (pedido) => {
 
     <div v-else-if="pedidos.length === 0" class="empty-state">
       Você ainda não negociou Rosários.
-      <router-link to="/produtos" class="link-loja">Visite a Loja 🗝️</router-link>
+      <router-link to="/" class="link-loja">Visite a Loja 🗝️</router-link>
     </div>
 
     <div v-else class="pedidos-lista">

@@ -1,19 +1,23 @@
 <script setup>
-import { ref, onMounted } from 'vue' // Importe onMounted
+import { ref, onMounted } from 'vue'
 import http from '../../http'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
 const email = ref('')
 const password = ref('')
 const loginError = ref(false)
-const isLoggedIn = ref(false) // Novo: Estado de Login
-const username = ref('') // Novo: Para armazenar o nome de usuário (para testes)
 
-// Função para verificar o estado de login
+// Cadastro não precisa verificar login, mas deixei caso use no futuro
+const isLoggedIn = ref(false)
+const username = ref('')
+
+// Mantive para evitar quebrar algo no componente
 const checkLoginStatus = () => {
   const token = localStorage.getItem('user_token')
   if (token) {
     isLoggedIn.value = true
-    // Para testes, vamos simular que o nome de usuário está disponível
-    // Na vida real, você faria uma requisição GET para /api/user/ para buscar o nome.
     username.value = 'Viajante Fantasma'
   } else {
     isLoggedIn.value = false
@@ -21,47 +25,46 @@ const checkLoginStatus = () => {
   }
 }
 
-// Executa a verificação assim que o componente é montado
 onMounted(() => {
   checkLoginStatus()
 })
 
+// 🔥 Agora esta função cria uma conta ao invés de logar
 const handleLogin = async () => {
   loginError.value = false
 
   try {
-    const response = await http.post('/token/', {
+    const response = await http.post('/api/cadastro/', {
       username: email.value,
       password: password.value,
     })
 
-    const token = response.data.access
-
-    if (token) {
-      localStorage.setItem('user_token', token)
-      checkLoginStatus() // Atualiza o estado de login após o sucesso
-
-      // Opcional: Redireciona, mas para testes pode ficar na mesma página
-      // router.push('/produtos')
+    // Se o backend retornou algo, assumimos que criou corretamente
+    if (response.status === 201 || response.status === 200) {
+      // Redireciona para tela de login
+      router.push('/login')
+      alert('Conta criada com sucesso! Faça login para continuar.')
     } else {
-      loginError.value = true
+      loginError.value = 'Algo estranho aconteceu no Vazio. Tente novamente.'
     }
   } catch (error) {
-    console.error('Erro de Login:', error)
-    if (error.response && error.response.status === 401) {
-      loginError.value = 'Vazio não aceita viajantes desconhecidos. Verifique seu email e senha.'
+    console.error('Erro no cadastro:', error)
+
+    if (error.response && error.response.status === 400) {
+      loginError.value = 'Este viajante já possui um nome no Reino.'
     } else {
-      loginError.value = 'Falha ao conectar-se ao Reino. Tente novamente mais tarde.'
+      loginError.value = 'Falha ao se conectar ao Reino. Tente novamente mais tarde.'
     }
   }
 }
 
-// Novo: Função para deslogar (para fins de teste)
+// Mantive apenas para não quebrar o template, mas não será usado nessa tela
 const handleLogout = () => {
   localStorage.removeItem('user_token')
-  checkLoginStatus() // Atualiza o estado para "deslogado"
+  checkLoginStatus()
 }
 </script>
+
 <template>
   <div class="login-background">
     <div class="login-card logged-in-card" v-if="isLoggedIn">
@@ -69,7 +72,7 @@ const handleLogout = () => {
         <div class="icon-container">
           <img src="../assets/img/rosario.png" alt="Logo Rosário" class="login-logo large-rosary" />
         </div>
-        <h1 class="login-title">Bem-vindo(a) de volta!</h1>
+        <h1 class="login-title">Bem-vindo(a)!</h1>
         <!-- <p class="login-subtitle greeting-text">Usuário: {{ username }}</p> -->
       </div>
 
@@ -86,7 +89,7 @@ const handleLogout = () => {
         <div class="icon-container">
           <img src="../assets/img/rosario.png" alt="Logo Rosário" class="login-logo" />
         </div>
-        <h1 class="login-title">Acessar Loja</h1>
+        <h1 class="login-title">Junte-se a nós!</h1>
         <p class="login-subtitle">Entre para negociar seus Rosários</p>
       </div>
 
@@ -111,12 +114,10 @@ const handleLogout = () => {
           <input type="password" id="password" v-model="password" placeholder="••••••••" required />
         </div>
 
-        <button type="submit" class="login-button">Entrar no Vazio</button>
+        <button type="submit" class="login-button">Criar Conta</button>
 
         <div class="login-footer">
-          <a href="#" class="forgot-link">Esqueceu a senha?</a>
-          <span class="separator">|</span>
-          <a href="/criarconta" class="register-link">Criar conta</a>
+          <a href="/login" class="register-link">Tem uma conta? Entre!</a>
         </div>
       </form>
     </div>

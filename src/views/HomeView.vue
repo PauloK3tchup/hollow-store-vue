@@ -71,11 +71,7 @@ export default {
       try {
         this.filtrandoTipo = null
         const resposta = await http.get(
-          '/produtos/?page=' +
-            this.pagina +
-            this.tipoAtual +
-            this.categoriaAtual +
-            this.pesquisaAtual,
+          '/produtos/?page=' + this.pagina + this.tipoAtual + this.categoriaAtual,
         )
         this.produtos = resposta.data.results
         this.num_pags = resposta.data.total_pages

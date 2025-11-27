@@ -1,14 +1,62 @@
 <script>
 import { useTiposStore } from '../stores/tipos'
+import http from '../../http'
 import { mapState } from 'pinia'
 export default {
   data() {
     return {
       produto: null,
+      item: {},
+      quantidade: 1,
     }
   },
   computed: {
     ...mapState(useTiposStore, ['produtoAtual', 'produtoData']),
+  },
+  methods: {
+    formatPrice(price) {
+      const num = parseFloat(price)
+      return new Intl.NumberFormat('pt-BR').format(num)
+    },
+    async addCarrinho() {
+      this.item = {
+        status: 'C',
+        itens: [
+          {
+            produto: this.produtoAtual,
+            imagem: this.produtoData.imagem,
+            nome_produto: this.produtoData.nome,
+            preco_unitario: this.produtoData.preco,
+            quantidade: this.quantidade,
+          },
+        ],
+      }
+      const token = localStorage.getItem('user_token')
+
+      if (!token) {
+        this.$router.push('/login')
+        return
+      }
+
+      try {
+        await http.post('/pedidos/', this.item, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        alert('Item adicionado ao carrinho com sucesso!')
+      } catch (err) {
+        if (err.response && err.response.status === 401) {
+          // Token expirou ou é inválido
+          localStorage.removeItem('user_token')
+          this.$router.push('/login')
+          alert('Sessão expirada. Faça login novamente.')
+        } else {
+          alert('Erro ao adicionar item ao carrinho. Tente mais tarde.')
+        }
+        console.error('Erro na API de carrinho:', err)
+      }
+    },
   },
 }
 </script>
@@ -66,14 +114,19 @@ export default {
             </li>
           </ul>
         </div>
+        <div class="hollow-container">
+          <label for="qnt">Quantidade</label>
+          <button @click="quantidade--">-</button>
+          <input v-model="quantidade" type="number" name="qnt" id="qnt" />
+          <button @click="quantidade++">+</button>
+        </div>
 
         <div class="purchase-box">
           <div class="product-price">
             <img src="../assets/img/rosario.png" alt="Ícone Rosário" class="rosario-icon" />
             {{ formatPrice(produtoData.preco) }}
           </div>
-
-          <button class="buy-button">Adquirir</button>
+          <button @click="addCarrinho" class="buy-button">Adquirir</button>
         </div>
       </div>
     </div>
@@ -89,6 +142,81 @@ const formatPrice = (price) => {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* Fonte recomendada (opcional): Alegreya, Cinzel, Crimson Text */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap');
+
+.hollow-container {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1a1a1d;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid #4c4f5a;
+  box-shadow: 0 0 12px rgba(150, 150, 255, 0.1);
+  width: fit-content;
+}
+
+.hollow-container label {
+  font-family: 'Cinzel', serif;
+  color: #e8e6f2;
+  font-size: 14px;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.25);
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type='number'] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+.hollow-container input {
+  width: 60px;
+  padding: 6px;
+  background: #0f0f11;
+  border: 2px solid #3d3f47;
+  border-radius: 6px;
+  color: #e8e6f2;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.05);
+  transition: 0.2s;
+}
+
+.hollow-container input:focus {
+  border-color: #8a8df0;
+  outline: none;
+  box-shadow: 0 0 8px #7b7ef5;
+}
+
+.hollow-container button {
+  background: #121215;
+  border: 2px solid #3d3f47;
+  color: #e8e6f2;
+  padding: 4px 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.hollow-container button:hover {
+  border-color: #8a8df0;
+  color: #ffffff;
+  box-shadow: 0 0 8px #7b7ef5;
+}
+
+.hollow-container button:active {
+  transform: scale(0.92);
+}
 
 .page-background {
   background-color: #1a1a1d;

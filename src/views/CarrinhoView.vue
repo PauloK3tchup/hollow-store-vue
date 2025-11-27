@@ -25,7 +25,7 @@ const carregarPedidos = async () => {
       },
     })
 
-    pedidos.value = response.data.results
+    pedidos.value = response.data.results.filter((pedido) => pedido.status === 'C')
     isLoading.value = false
   } catch (err) {
     isLoading.value = false
@@ -109,6 +109,48 @@ const finalizarCompra = async (pedidoId) => {
     alert('Erro ao processar o pedido. Tente novamente ou verifique sua conexão.')
   }
 }
+const comprarTudo = async () => {
+  const token = getToken()
+
+  if (!token) {
+    alert('Sua sessão expirou. Faça login para finalizar a compra.')
+    return
+  }
+
+  try {
+    // 1. Criamos um array de promessas (requisições) para cada pedido na lista
+    const requisicoes = pedidos.value.map((pedido) => {
+      const url = `/pedidos/${pedido.id}/`
+
+      // Retorna a promessa da requisição (não usamos await aqui dentro)
+      return http.patch(
+        url,
+        {
+          status: 'P', // 'P' para Pendente
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+    })
+
+    // 2. O Promise.all aguarda todas as requisições serem concluídas simultaneamente
+    await Promise.all(requisicoes)
+
+    // 3. Se não cair no catch, significa que todos deram sucesso (200 OK)
+    alert('Todos os pedidos foram enviados! Status atualizado para PENDENTE.')
+
+    // 4. Atualiza o estado local de todos os itens de uma vez só
+    pedidos.value.forEach((p) => {
+      p.status = 'P'
+    })
+  } catch (error) {
+    console.error('Erro ao finalizar as compras:', error)
+    alert('Erro ao processar os pedidos. Pode ser que alguns não tenham sido atualizados.')
+  }
+}
 </script>
 
 <template>
@@ -123,7 +165,7 @@ const finalizarCompra = async (pedidoId) => {
 
     <div v-else-if="pedidos.length === 0" class="empty-state">
       Você ainda não negociou Rosários.
-      <router-link to="/produtos" class="link-loja">Visite a Loja 🗝️</router-link>
+      <router-link to="/" class="link-loja">Visite a Loja 🗝️</router-link>
     </div>
 
     <div v-else class="pedidos-lista">
@@ -155,11 +197,10 @@ const finalizarCompra = async (pedidoId) => {
             <span class="total-label">Total do Pedido:</span>
             <span class="total-valor">{{ calcularTotalPedido(pedido) }}</span>
           </div>
-          <button @click="finalizarCompra(pedido.id)" class="checkout-button">
-            Finalizar Compra
-          </button>
+          <button @click="finalizarCompra(pedido.id)" class="checkout-button">Comprar Agora</button>
         </div>
       </div>
+      <button @click="comprarTudo()" class="checkout-button">Finalizar Compra</button>
     </div>
   </div>
 </template>
