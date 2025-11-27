@@ -117,7 +117,7 @@ const handleLogout = () => {
         <button type="submit" class="login-button">Criar Conta</button>
 
         <div class="login-footer">
-          <a href="/login" class="register-link">Tem uma conta? Entre!</a>
+          <a @click="this.$router.push('/login')" class="register-link">Tem uma conta? Entre!</a>
         </div>
       </form>
     </div>

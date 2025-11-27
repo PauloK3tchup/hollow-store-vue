@@ -116,7 +116,7 @@ const handleLogout = () => {
         <div class="login-footer">
           <a href="#" class="forgot-link">Esqueceu a senha?</a>
           <span class="separator">|</span>
-          <a href="/criarconta" class="register-link">Criar conta</a>
+          <a @click="this.$router.push('/criarconta')" class="register-link">Criar conta</a>
         </div>
       </form>
     </div>
