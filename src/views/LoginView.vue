@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue' // Importe onMounted
+import { RouterLink } from 'vue-router'
 import http from '../../http'
 const email = ref('')
 const password = ref('')
@@ -25,10 +26,6 @@ const checkLoginStatus = () => {
 onMounted(() => {
   checkLoginStatus()
 })
-
-const mudatela = () => {
-  this.$router.push('/pedidos')
-}
 
 const handleLogin = async () => {
   loginError.value = false
@@ -78,7 +75,9 @@ const handleLogout = () => {
       </div>
 
       <div class="logged-in-actions">
-        <button @click="mudatela" class="login-button logout-button">Pedidos</button>
+        <RouterLink to="/pedidos">
+          <button class="login-button logout-button">Pedidos</button>
+        </RouterLink>
         <button @click="handleLogout" class="login-button logout-button">Sair do Vazio</button>
       </div>
     </div>
