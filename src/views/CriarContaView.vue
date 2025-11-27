@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import http from '../../http'
-import { useRouter } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 
 const router = useRouter()
 
@@ -117,7 +117,7 @@ const handleLogout = () => {
         <button type="submit" class="login-button">Criar Conta</button>
 
         <div class="login-footer">
-          <a @click="this.$router.push('/login')" class="register-link">Tem uma conta? Entre!</a>
+          <a class="register-link"><RouterLink to="/login">Já tem uma conta? Entre!</RouterLink></a>
         </div>
       </form>
     </div>
