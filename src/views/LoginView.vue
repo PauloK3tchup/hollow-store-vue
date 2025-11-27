@@ -26,6 +26,10 @@ onMounted(() => {
   checkLoginStatus()
 })
 
+const mudatela = () => {
+  this.$router.push('/pedidos')
+}
+
 const handleLogin = async () => {
   loginError.value = false
 
@@ -74,9 +78,7 @@ const handleLogout = () => {
       </div>
 
       <div class="logged-in-actions">
-        <button @click="this.$router.push('/pedidos')" class="login-button logout-button">
-          Pedidos
-        </button>
+        <button @click="mudatela" class="login-button logout-button">Pedidos</button>
         <button @click="handleLogout" class="login-button logout-button">Sair do Vazio</button>
       </div>
     </div>
